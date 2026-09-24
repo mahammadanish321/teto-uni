@@ -6,7 +6,17 @@ import { api } from '@/lib/api';
 import { Task, TaskPriority, TaskStatus, User } from '@/types';
 
 export default function Home() {
-  const { user, token, loading: authLoading, demoUsers, signInWithGoogle, switchDemoUser, signOut } = useAuth();
+  const {
+    user,
+    token,
+    loading: authLoading,
+    demoUsers,
+    googleProviderNotConfigured,
+    setGoogleProviderNotConfigured,
+    signInWithGoogle,
+    switchDemoUser,
+    signOut,
+  } = useAuth();
 
   const [tasks, setTasks] = useState<Task[]>([]);
   const [users, setUsers] = useState<User[]>([]);
@@ -171,6 +181,50 @@ export default function Home() {
               Sign In with Google
             </button>
           </div>
+
+          {/* Modal / Help box if Google OAuth is not enabled in Supabase */}
+          {googleProviderNotConfigured && (
+            <div
+              style={{
+                backgroundColor: '#fff3cd',
+                color: '#856404',
+                border: '1px solid #ffeeba',
+                padding: '15px',
+                borderRadius: '4px',
+                textAlign: 'left',
+                marginBottom: '20px',
+                fontSize: '13px',
+              }}
+            >
+              <h4 style={{ margin: '0 0 8px 0', fontSize: '14px' }}>
+                ⚠️ Google Provider Not Enabled in Supabase Dashboard Yet
+              </h4>
+              <p style={{ margin: '0 0 8px 0' }}>
+                Supabase reported: <code>Unsupported provider: provider is not enabled</code>.
+              </p>
+              <p style={{ margin: '0 0 8px 0' }}>
+                <strong>To enable Google OAuth in Supabase:</strong>
+              </p>
+              <ol style={{ paddingLeft: '20px', margin: '0 0 10px 0' }}>
+                <li>
+                  Open your Supabase Providers:{' '}
+                  <a
+                    href="https://supabase.com/dashboard/project/qowzmhcydxxfbtrzangl/auth/providers"
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{ color: '#0056b3', textDecoration: 'underline' }}
+                  >
+                    Click here to open Supabase Auth Providers
+                  </a>
+                </li>
+                <li>Find <strong>Google</strong> and toggle <strong>Enable Google provider</strong> to ON.</li>
+                <li>Enter your Google Cloud <strong>Client ID</strong> &amp; <strong>Client Secret</strong>.</li>
+              </ol>
+              <div style={{ borderTop: '1px solid #e2d19b', paddingTop: '8px' }}>
+                <strong>Alternatively:</strong> You can use the <strong>Demo Test Login below</strong> right now to test creating and assigning tasks with email notifications!
+              </div>
+            </div>
+          )}
 
           <hr style={{ border: 'none', borderTop: '1px solid #eee', margin: '20px 0' }} />
 

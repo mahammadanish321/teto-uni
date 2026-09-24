@@ -11,6 +11,8 @@ interface AuthContextType {
   loading: boolean;
   demoUsers: User[];
   isDemo: boolean;
+  googleProviderNotConfigured: boolean;
+  setGoogleProviderNotConfigured: (val: boolean) => void;
   signInWithGoogle: () => Promise<void>;
   switchDemoUser: (user: User) => void;
   signOut: () => Promise<void>;
@@ -25,8 +27,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [demoUsers, setDemoUsers] = useState<User[]>([]);
   const [isDemo, setIsDemo] = useState(false);
+  const [googleProviderNotConfigured, setGoogleProviderNotConfigured] = useState(false);
 
-  // Fetch demo users for the reviewer switcher
+  // Fetch demo users for testing
   useEffect(() => {
     api.getDemoUsers()
       .then(res => {
@@ -34,7 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setDemoUsers(res.users);
         }
       })
-      .catch(err => console.log('Notice: Backend not yet connected or initializing demo users:', err.message));
+      .catch(err => console.log('Notice: initializing demo users:', err.message));
   }, []);
 
   // Listen to Supabase Auth State
@@ -47,12 +50,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setToken(accessToken);
           setIsDemo(false);
 
-          // Get profile from backend or sync
           try {
             const profileRes = await api.getCurrentUser(accessToken);
             setUser(profileRes.user);
           } catch (e) {
-            // Profile will be auto-created on next request
             const meta = session.user.user_metadata || {};
             setUser({
               id: session.user.id,
@@ -89,7 +90,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           });
         }
       } else {
-        // If not in demo mode, clear user
         if (!isDemo) {
           setUser(null);
           setToken(null);
@@ -102,8 +102,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [isDemo]);
 
+  const checkGoogleEnabled = async (): Promise<boolean> => {
+    try {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://qowzmhcydxxfbtrzangl.supabase.co';
+      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_mOc3dW_eS63LUursi357Jw_rBsKOGaX';
+      const res = await fetch(`${supabaseUrl}/auth/v1/settings`, {
+        headers: { apikey: supabaseKey },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        return data?.external?.google === true;
+      }
+    } catch {
+      // ignore
+    }
+    return false;
+  };
+
   const signInWithGoogle = async () => {
     setLoading(true);
+    // Check if Google provider is enabled in Supabase project
+    const isConfigured = await checkGoogleEnabled();
+    if (!isConfigured) {
+      setGoogleProviderNotConfigured(true);
+      setLoading(false);
+      return;
+    }
+
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -119,7 +144,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw error;
       }
     } catch (err: any) {
-      alert(`Google Sign-In notice: ${err.message || 'Could not connect to Google OAuth provider'}. You can also use Demo Reviewer Mode below!`);
+      setGoogleProviderNotConfigured(true);
       setLoading(false);
     }
   };
@@ -162,6 +187,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         loading,
         demoUsers,
         isDemo,
+        googleProviderNotConfigured,
+        setGoogleProviderNotConfigured,
         signInWithGoogle,
         switchDemoUser,
         signOut,
