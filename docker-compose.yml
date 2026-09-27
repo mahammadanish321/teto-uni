@@ -11,7 +11,7 @@ services:
       - PORT=5000
       - SUPABASE_URL=https://qowzmhcydxxfbtrzangl.supabase.co
       - SUPABASE_KEY=sb_publishable_mOc3dW_eS63LUursi357Jw_rBsKOGaX
-      - DATABASE_URL=postgresql://postgres:qWM6PqxgW%3FyMEW%40@db.qowzmhcydxxfbtrzangl.supabase.co:5432/postgres
+      - DATABASE_URL=postgresql://postgres.qowzmhcydxxfbtrzangl:qWM6PqxgW%3FyMEW%40@aws-0-ap-south-1.pooler.supabase.com:6543/postgres
       - FRONTEND_URL=http://localhost:3000
       - GMAIL_USER=${GMAIL_USER:-}
       - GMAIL_APP_PASSWORD=${GMAIL_APP_PASSWORD:-}

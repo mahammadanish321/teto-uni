@@ -15,8 +15,16 @@ class Config:
     database_url = os.getenv('DATABASE_URL')
     if not database_url:
         pw = quote_plus('qWM6PqxgW?yMEW@')
-        database_url = f'postgresql://postgres:{pw}@db.qowzmhcydxxfbtrzangl.supabase.co:5432/postgres'
+        database_url = f'postgresql://postgres.qowzmhcydxxfbtrzangl:{pw}@aws-0-ap-south-1.pooler.supabase.com:6543/postgres'
     
+    # Supabase direct hostname (db.*.supabase.co) only resolves to IPv6,
+    # which Render containers cannot route. Automatically route through IPv4 pooler.
+    if database_url and 'db.qowzmhcydxxfbtrzangl.supabase.co' in database_url:
+        database_url = database_url.replace('db.qowzmhcydxxfbtrzangl.supabase.co:5432', 'aws-0-ap-south-1.pooler.supabase.com:6543')
+        database_url = database_url.replace('db.qowzmhcydxxfbtrzangl.supabase.co', 'aws-0-ap-south-1.pooler.supabase.com:6543')
+        if 'postgres:' in database_url and 'postgres.qowzmhcydxxfbtrzangl' not in database_url:
+            database_url = database_url.replace('postgres:', 'postgres.qowzmhcydxxfbtrzangl:', 1)
+
     # Handle postgres:// vs postgresql:// for SQLAlchemy compatibility
     if database_url and database_url.startswith('postgres://'):
         database_url = database_url.replace('postgres://', 'postgresql://', 1)

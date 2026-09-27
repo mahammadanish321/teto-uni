@@ -11,8 +11,8 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+/lib/
+/lib64/
 parts/
 sdist/
 var/
@@ -44,7 +44,7 @@ out/
 # Keep example files
 !.env.example
 !taskManagerBackend/.env.example
-!taskManagerFrontend/.env.example
+!taskmanager-frontend/.env.example
 
 # IDE / OS
 .DS_Store
