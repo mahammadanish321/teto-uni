@@ -4,6 +4,12 @@ function getApiBaseUrl(): string {
   if (process.env.NEXT_PUBLIC_API_URL) {
     return process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, '');
   }
+  if (process.env.API_URL) {
+    return (process.env.API_URL as string).replace(/\/$/, '');
+  }
+  if (process.env.BACKEND_URL) {
+    return (process.env.BACKEND_URL as string).replace(/\/$/, '');
+  }
   if (typeof window !== 'undefined' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
     return 'https://teto-b.onrender.com';
   }
