@@ -254,6 +254,43 @@ The frontend will start at: `http://localhost:3000`
 
 ---
 
+## 🐳 Docker Deployment & Quickstart
+
+Both services are fully containerized with multi-stage production Dockerfiles and a unified `docker-compose.yml`.
+
+### Run Full Stack with Docker Compose
+```bash
+# Build and run both backend and frontend in the background
+docker compose up --build -d
+
+# Check running containers
+docker compose ps
+
+# View live application logs
+docker compose logs -f
+
+# Stop all containers
+docker compose down
+```
+
+### Build & Run Individual Containers
+
+#### Backend (Flask + Gunicorn):
+```bash
+cd taskManagerBackend
+docker build -t taskmanager-backend .
+docker run -p 5000:5000 --env-file .env taskmanager-backend
+```
+
+#### Frontend (Next.js 16 + Node 20 Alpine):
+```bash
+cd taskmanager-frontend
+docker build -t taskmanager-frontend .
+docker run -p 3000:3000 taskmanager-frontend
+```
+
+---
+
 ## 🌐 Production Deployment Guide
 
 ### 1. Database (Supabase)
